@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>NFC MQTT</title>
+
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+
+<style>
+body{
+font-family:Arial;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+background:#f5f5f5;
+}
+.card{
+padding:30px;
+background:white;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,.2);
+text-align:center;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<h2>NFC MQTT Control</h2>
+
+<p id="status">Connecting...</p>
+
+</div>
+
+<script>
+
+const params=new URLSearchParams(window.location.search);
+
+const topic=params.get("topic");
+const message=params.get("message");
+
+const client=mqtt.connect(
+"wss://YOUR_CLUSTER.s1.eu.hivemq.cloud:8884/mqtt",
+{
+username:"YOUR_USERNAME",
+password:"YOUR_PASSWORD",
+clientId:"web_"+Math.random().toString(16).substr(2,8),
+clean:true,
+connectTimeout:4000
+}
+);
+
+client.on("connect",()=>{
+
+document.getElementById("status").innerHTML="Connected";
+
+client.publish(topic,message,{qos:1},()=>{
+
+document.getElementById("status").innerHTML="Command Sent Successfully";
+
+setTimeout(()=>{
+client.end();
+},1000);
+
+});
+
+});
+
+client.on("error",(err)=>{
+
+document.getElementById("status").innerHTML="Error : "+err.message;
+
+client.end();
+
+});
+
+</script>
+
+</body>
+</html>
